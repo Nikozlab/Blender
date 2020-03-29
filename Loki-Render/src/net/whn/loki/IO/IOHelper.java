@@ -56,7 +56,7 @@ public class IOHelper {
         File lokiBaseDir;
         File fileCacheDir;
         File tmpDir;
-        String lokiConfDir = ".loki/";
+        String lokiConfDir = ".loki";
 
         //first let's retrieve the user's home directory
         String userHomeDir = System.getProperty("user.home");

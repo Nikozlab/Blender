@@ -14,6 +14,8 @@ import net.whn.loki.master.*;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
 import java.util.logging.Handler;
@@ -45,8 +47,6 @@ public class Main {
         if (blenderExe != null) {
             gruntcl = true;
         }
-
-
 
         lokiCfgDir = IOHelper.setupLokiCfgDir();
 
@@ -196,8 +196,6 @@ public class Main {
             myRole = LokiRole.GRUNTCL;
         }
 
-
-
         if (myRole == LokiRole.GRUNT || myRole == LokiRole.MASTER_GRUNT) {
             if (!CLHelper.determineBlenderBin(cfg)) {
                 System.exit(0);
@@ -257,18 +255,35 @@ public class Main {
             throws IOException {
         AnnouncerR announcer;
         announcer = new AnnouncerR(cfg, hiddenForm);
+        
+        //https://www.oreilly.com/library/view/java-threads-second/1565924185/ch04s04.html
+        try {
+            log.info("Start..." + new Date());
+            // delay 5 seconds
+            TimeUnit.SECONDS.sleep(5);
+            log.info("End..." + new Date());
+            // delay 0.5 second
+            //TimeUnit.MICROSECONDS.sleep(500);
+		// delay 1 minute
+            //TimeUnit.MINUTES.sleep(1);
+			
+        } catch (InterruptedException e) {
+            System.err.format("IOException: %s%n", e);
+        }
+        
+        log.info("otherMasterpre:" + announcer.getotherMaster());
         master = new MasterR(lokiCfgDir, cfg, announcer,
                 masterMessageQueueSize);
-
+        log.info("otherMasterpost:" + announcer.getotherMaster());
         masterThread = new Thread(master);
         masterThread.setName("master");
-
+log.info("otherMasterpost:" + announcer.getotherMaster());
         masterForm = new MasterForm(master);
         master.setMasterForm(masterForm);
-
+log.info("otherMasterpost:" + announcer.getotherMaster());
         masterThread.start();
         masterForm.setVisible(true);
-
+log.info("otherMasterpost:" + announcer.getotherMaster());
         //we'll have a local grunt so we need to start it and tell it we're here
         if (localGrunt) {
             Point p = masterForm.getLocation();

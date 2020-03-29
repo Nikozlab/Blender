@@ -48,8 +48,6 @@ import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterInputStream;
 import net.whn.loki.master.JobsModel;
 import com.google.gson.Gson;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 /**
  *
  * @author daniel
@@ -58,6 +56,7 @@ public class Config implements Serializable, ICommon {
     
     //NiKoZ WaS HeRe
     private static final long serialVersionUID = 6529685098267757690L;
+    
     //NiKoZ WaS HeRe
     /**
      * called by main if no previous cfg exists
@@ -66,7 +65,7 @@ public class Config implements Serializable, ICommon {
         log.setLevel(Level.FINE);
         
         //common
-        lokiVer = "0.7.2";
+        lokiVer = "0.8.0";
         role = LokiRole.ASK;
         lokiCfgDir = lcDir;
         fileCacheMap = new ConcurrentHashMap<String, ProjFile>();

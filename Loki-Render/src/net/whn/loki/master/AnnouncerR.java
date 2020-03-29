@@ -37,7 +37,6 @@ import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import net.whn.loki.common.Config;
 import net.whn.loki.common.LokiForm;
-import sun.net.util.IPAddressUtil;
 
 /**
  * sends multicast announcement so grunts can discover master's IP address
@@ -58,12 +57,12 @@ public class AnnouncerR implements Runnable {
         announceInterval = cfg.getAnnounceInterval();
         multicastSendPort = 53912;
         InetAddress localMachine = InetAddress.getLocalHost();
-
+        otherMaster = false;
         masterInfo = localMachine.getHostName() + ";" + cfg.getLokiVer() +
                 ";" + Integer.toString(cfg.getConnectPort()) + ";";
         
         //mSocket = new DatagramSocket(multicastSendPort);
-
+        
         dgramPacketAnnounce = new DatagramPacket(
                 masterInfo.getBytes(),
                 masterInfo.length(),
@@ -76,15 +75,17 @@ public class AnnouncerR implements Runnable {
     @Override
     public void run() {
         int failureCount = 0;
-
         String masterIP = detectMaster();
-        log.info(">>> MASTERIP:" + masterIP);
-        if(masterIP != null && IPAddressUtil.isIPv4LiteralAddress(masterIP))
+        //log.info("detected master at:" + masterIP);
+        if(masterIP != null)
         {
+            otherMaster = true;
             MasterEQCaller.showMessageDialog(dummyForm, "Master detected",
                     "Loki master already running on system '" + masterIP + "'.",
                     JOptionPane.WARNING_MESSAGE);
+            log.info("otherMaster:" + otherMaster);
             log.info("detected master at:" + masterIP);
+            
         }
 
         while (!Thread.currentThread().isInterrupted()) {
@@ -108,7 +109,11 @@ public class AnnouncerR implements Runnable {
             }
         }//end of while
     }
-
+    
+    public boolean getotherMaster () {
+        return otherMaster;
+    }
+    
     /*BEGIN PRIVATE*/
     //logging
     private static final String className = "net.whn.loki.master.AnnouncerR";
@@ -120,6 +125,7 @@ public class AnnouncerR implements Runnable {
     final private String masterInfo;
     final private DatagramPacket dgramPacketAnnounce;
     //final private DatagramSocket mSocket;
+    private Boolean otherMaster;
     
     private void sendAnnouncePackets() throws SocketException, IOException {
         Enumeration<NetworkInterface> nets = 
@@ -147,18 +153,25 @@ public class AnnouncerR implements Runnable {
         DatagramPacket packet = new DatagramPacket(buf, buf.length);
 
         try {
-            //throws IOE
-            MulticastSocket mSock = new MulticastSocket(cfg.getGruntMulticastPort());
+            String strIpAddress = cfg.getMulticastAddress().toString();
+            String strIpAddress2 = strIpAddress.replace("/", "");
+            //log.info("strIpAddress2: " +strIpAddress2);
+            
+            MulticastSocket multicastSocket = new MulticastSocket(
+                cfg.getGruntMulticastPort() ); 
 
-            //throws IOE
-            mSock.joinGroup(cfg.getMulticastAddress()); //TODO - throws IO -> quit!
-            mSock.setSoTimeout(5000);
-
-            mSock.receive(packet);
+            // join multicast group to receive messages
+            multicastSocket.joinGroup( InetAddress.getByName( strIpAddress2)); 
+            // set 5 second timeout when waiting for new packets
+            multicastSocket.setSoTimeout( 5000 );
+            multicastSocket.receive(packet);
+            
+            
         } catch (SocketTimeoutException ex) {
             return null;
         } catch (IOException ex) {
             //TODO
+            ex.printStackTrace();
         }
         String remoteMasterInfo = new String(packet.getData());
         StringTokenizer st = new StringTokenizer(remoteMasterInfo, ";");
