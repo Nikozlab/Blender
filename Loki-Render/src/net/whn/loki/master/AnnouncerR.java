@@ -75,19 +75,7 @@ public class AnnouncerR implements Runnable {
     @Override
     public void run() {
         int failureCount = 0;
-        String masterIP = detectMaster();
-        //log.info("detected master at:" + masterIP);
-        if(masterIP != null)
-        {
-            otherMaster = true;
-            MasterEQCaller.showMessageDialog(dummyForm, "Master detected",
-                    "Loki master already running on system '" + masterIP + "'.",
-                    JOptionPane.WARNING_MESSAGE);
-            log.info("otherMaster:" + otherMaster);
-            log.info("detected master at:" + masterIP);
-            
-        }
-
+        
         while (!Thread.currentThread().isInterrupted()) {
             if (failureCount > 5) {
                 //we can't continue if announce is broken
@@ -148,33 +136,5 @@ public class AnnouncerR implements Runnable {
         }//end for
     }
 
-    private String detectMaster() {
-        byte[] buf = new byte[256];
-        DatagramPacket packet = new DatagramPacket(buf, buf.length);
-
-        try {
-            String strIpAddress = cfg.getMulticastAddress().toString();
-            String strIpAddress2 = strIpAddress.replace("/", "");
-            //log.info("strIpAddress2: " +strIpAddress2);
-            
-            MulticastSocket multicastSocket = new MulticastSocket(
-                cfg.getGruntMulticastPort() ); 
-
-            // join multicast group to receive messages
-            multicastSocket.joinGroup( InetAddress.getByName( strIpAddress2)); 
-            // set 5 second timeout when waiting for new packets
-            multicastSocket.setSoTimeout( 5000 );
-            multicastSocket.receive(packet);
-            
-            
-        } catch (SocketTimeoutException ex) {
-            return null;
-        } catch (IOException ex) {
-            //TODO
-            ex.printStackTrace();
-        }
-        String remoteMasterInfo = new String(packet.getData());
-        StringTokenizer st = new StringTokenizer(remoteMasterInfo, ";");
-        return st.nextToken();
-    }
+   
 }

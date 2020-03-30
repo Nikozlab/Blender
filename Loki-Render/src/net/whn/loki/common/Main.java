@@ -7,15 +7,16 @@ package net.whn.loki.common;
 import net.whn.loki.error.DefaultExceptionHandler;
 import net.whn.loki.IO.IOHelper;
 import net.whn.loki.CL.CLHelper;
-import java.awt.EventQueue;
 import java.awt.Point;
 import java.io.File;
 import net.whn.loki.master.*;
 import java.io.IOException;
+import java.net.DatagramPacket;
 import java.net.InetAddress;
+import java.net.MulticastSocket;
+import java.net.SocketTimeoutException;
+import java.util.StringTokenizer;
 import java.net.UnknownHostException;
-import java.util.Date;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
 import java.util.logging.Handler;
@@ -27,6 +28,7 @@ import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import net.whn.loki.common.ICommon.LokiRole;
 import net.whn.loki.error.ErrorHelper;
+import javax.swing.JDialog;
 
 /**
  *
@@ -99,12 +101,13 @@ public class Main {
                     } else {
                         System.out.println(writeMsg);
                     }
-
+                    
                     log.severe("filesystem is not writable. Loki exiting.");
                 } else {  //filesystem is writable so continue
                     setupLogging();
                     try {
                         cfg = Config.readCfgFile(lokiCfgDir);
+                        
                         if(!autoDiscoverMaster) {
                                 cfg.setMasterIp(manualMasterIP);
                                 cfg.setAutoDiscoverMaster(autoDiscoverMaster);  
@@ -113,9 +116,45 @@ public class Main {
                             cfg.setBlenderBin(blenderExe);
                             System.out.println("Starting Loki grunt in cl mode");
                             System.out.println("Attempting to connect to master...");
-                        }
-                        startLoki(lokiForm);
+                        }else if(cfg.getRole() != LokiRole.GRUNT){
+                            String[] NKZargs = {
+                                "Master Searching", 
+                                "Loki needs to check if Master is already available",
+                                "4000","true"
+                            };
+                            String masterIP = detectMaster();
+                            JDialog tempDiag = NKZJOPane.showDiagWithAutoClose(NKZargs);
+                            /*
+                            try {
+                                Thread.sleep((long)5000);
+                            } catch (InterruptedException ex) {
+                                Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                            tempDiag.setVisible(false);*/
+                            if(masterIP != null)
+                            {
+                                 NKZargs[0] = "Master detected";
+                                 NKZargs[1] = "Loki master already running on system '" + masterIP + "'.\n" +
+                                        "If You Select Master mode there will be 2 Masters! ";
+                                 NKZargs[2] = "2000";
+                                 NKZargs[3] = "true";
+                                 
+                                 cfg.setRole(LokiRole.ASK);
+                            }else{
+                                NKZargs[0] = "Master Not detected";
+                                 NKZargs[1] = "At least one Loki master must run.\n" +
+                                        "Select Master/Mater_Grunt mode to make this host Master! ";
+                                 NKZargs[2] = "2000";
+                                 NKZargs[3] = "true";
+                            }       
+                            tempDiag = NKZJOPane.showDiagWithAutoClose(NKZargs);
 
+                            //tempDiag.setVisible(false);
+                          //  log.info("detected master at:" + masterIP);
+                        }
+                        
+                        startLoki(lokiForm);
+                            
                     } catch (IOException ex) {
                         //fatal error during Announce startup
                         String errMsg =
@@ -164,7 +203,6 @@ public class Main {
     private static GruntForm gruntForm;
     private static InetAddress manualMasterIP;
     private static boolean  autoDiscoverMaster;
-    
     //logging
     private static final String className = "net.whn.loki.common.Main";
     private static final Logger log = Logger.getLogger(className);
@@ -244,6 +282,35 @@ public class Main {
         }
     }
 
+    private static String detectMaster() {
+        byte[] buf = new byte[256];
+        DatagramPacket packet = new DatagramPacket(buf, buf.length);
+
+        try {
+            String strIpAddress = cfg.getMulticastAddress().toString();
+            String strIpAddress2 = strIpAddress.replace("/", "");
+            //log.info("strIpAddress2: " +strIpAddress2);
+            
+            MulticastSocket multicastSocket = new MulticastSocket(
+                cfg.getGruntMulticastPort() ); 
+
+            // join multicast group to receive messages
+            multicastSocket.joinGroup( InetAddress.getByName( strIpAddress2)); 
+            // set 5 second timeout when waiting for new packets
+            multicastSocket.setSoTimeout( 5000 );
+            multicastSocket.receive(packet);
+            
+            
+        } catch (SocketTimeoutException ex) {
+            return null;
+        } catch (IOException ex) {
+            //TODO
+            ex.printStackTrace();
+        }
+        String remoteMasterInfo = new String(packet.getData());
+        StringTokenizer st = new StringTokenizer(remoteMasterInfo, ";");
+        return st.nextToken();
+    }
     /**
      *
      * @param hiddenForm
@@ -255,35 +322,18 @@ public class Main {
             throws IOException {
         AnnouncerR announcer;
         announcer = new AnnouncerR(cfg, hiddenForm);
-        
-        //https://www.oreilly.com/library/view/java-threads-second/1565924185/ch04s04.html
-        try {
-            log.info("Start..." + new Date());
-            // delay 5 seconds
-            TimeUnit.SECONDS.sleep(5);
-            log.info("End..." + new Date());
-            // delay 0.5 second
-            //TimeUnit.MICROSECONDS.sleep(500);
-		// delay 1 minute
-            //TimeUnit.MINUTES.sleep(1);
-			
-        } catch (InterruptedException e) {
-            System.err.format("IOException: %s%n", e);
-        }
-        
-        log.info("otherMasterpre:" + announcer.getotherMaster());
         master = new MasterR(lokiCfgDir, cfg, announcer,
                 masterMessageQueueSize);
-        log.info("otherMasterpost:" + announcer.getotherMaster());
-        masterThread = new Thread(master);
-        masterThread.setName("master");
-log.info("otherMasterpost:" + announcer.getotherMaster());
-        masterForm = new MasterForm(master);
-        master.setMasterForm(masterForm);
-log.info("otherMasterpost:" + announcer.getotherMaster());
-        masterThread.start();
-        masterForm.setVisible(true);
-log.info("otherMasterpost:" + announcer.getotherMaster());
+        if (announcer.getotherMaster() == false){
+            masterThread = new Thread(master);
+            masterThread.setName("master");
+
+            masterForm = new MasterForm(master);
+            master.setMasterForm(masterForm);
+
+            masterThread.start();
+            masterForm.setVisible(true);
+        }
         //we'll have a local grunt so we need to start it and tell it we're here
         if (localGrunt) {
             Point p = masterForm.getLocation();
