@@ -56,7 +56,7 @@ public class Config implements Serializable, ICommon {
     
     //NiKoZ WaS HeRe
     private static final long serialVersionUID = 6529685098267757690L;
-    
+    static final String lastLokiVer = "0.8.0";
     //NiKoZ WaS HeRe
     /**
      * called by main if no previous cfg exists
@@ -65,7 +65,7 @@ public class Config implements Serializable, ICommon {
         log.setLevel(Level.FINE);
         
         //common
-        lokiVer = "0.8.0";
+        lokiVer = lastLokiVer;
         role = LokiRole.ASK;
         lokiCfgDir = lcDir;
         fileCacheMap = new ConcurrentHashMap<String, ProjFile>();
@@ -137,7 +137,11 @@ public class Config implements Serializable, ICommon {
     public String getLokiVer() {
         return lokiVer;
     }
-
+    
+    public void setLokiVer(String newVer) {
+        lokiVer = newVer;
+    }
+    
     public LokiRole getRole() {
         return role;
     }
@@ -295,6 +299,9 @@ public class Config implements Serializable, ICommon {
                 file.close(); 
                 time = System.currentTimeMillis() - time;
                 log.finest("config file read in (ms): " + Long.toString(time));
+                if(lastLokiVer != c.getLokiVer()){
+                    c.setLokiVer(lastLokiVer);
+                }
                 return c;
             } catch (Exception ex) {
                 log.warning("failed to read loki.cfg: " + ex.getMessage());
@@ -316,9 +323,9 @@ public class Config implements Serializable, ICommon {
         
         lokiCfg = new File(lcDir, "loki.cfg");
         FileWriter file = new FileWriter(lokiCfg);
-      
         Gson gson = new Gson();
         String json = gson.toJson(cfg); 
+        
         time = System.currentTimeMillis();
         file.write(json);
         file.flush();
@@ -332,7 +339,8 @@ public class Config implements Serializable, ICommon {
     private static final String className = "net.whn.loki.common.Configuration";
     private static final Logger log = Logger.getLogger(className);
     //common
-    private final String lokiVer;
+    private  String lokiVer;
+    
     private static File lokiCfgDir;
     private static File lokiCfg;    //static because it's methods are static
     private volatile LokiRole role; //master and grunt both set this
