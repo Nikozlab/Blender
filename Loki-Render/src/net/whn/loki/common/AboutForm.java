@@ -31,7 +31,9 @@ public class AboutForm extends LokiForm {
     public AboutForm(String lokiVersion) {
         initComponents();
         lblVersion.setText(lokiVersion);
-        lblCopyright.setText("<html>Copyright 2014 Daniel Petersen<br>" +
+        lblCopyright.setText("<html>Copyright: <br>" +
+                "2014 - Daniel Petersen<br>" +
+                "2020 - NiKoZLaB.it<br>" +
                 "Tile rendering update by<br>" +
                 "Gustavo Alejandro Moreno Martínez</html>");
         areaLicense.setCaretPosition(0);

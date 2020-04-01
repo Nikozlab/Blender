@@ -83,7 +83,13 @@ public class MasterR extends MsgQueue implements Runnable, ICommon {
             //if either of these fail, we have to quit
             //TODO - message for user
             log.severe("listener failed to setup!");
-            throw new IllegalThreadStateException();
+            EQCaller.showMessageDialog(masterForm, "failed to setup listener",
+                        "Check if other copy of Loki-Renderer are still running",
+                        JOptionPane.WARNING_MESSAGE);
+            
+            
+            //throw new IllegalThreadStateException();
+            
         }
 
         helpersThreadGroup = new ThreadGroup("helpers");

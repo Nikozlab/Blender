@@ -74,6 +74,46 @@ public class JobDetailsForm extends LokiForm {
         tblTasks.getColumnModel().getColumn(1).setMaxWidth(40);
     }
 
+    public void RefreshJobDetailsForm() {
+        
+        tasks = job.getTasks();
+        tasksModel = new TasksModel(job);
+        initComponents();
+
+        setTitle("Job details for '" + job.getJobName() + "'");
+        setViewTime();
+        //tblTasks.getColumnModel().getColumn(0).setPreferredWidth(5);
+        //tblTasks.getColumnModel().getColumn(1).setPreferredWidth(5);
+        //tblTasks.getColumnModel().getColumn(2).setPreferredWidth(7);
+        //tblTasks.getColumnModel().getColumn(3).setPreferredWidth(10);
+        tblTasks.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        //Detail
+        lblType.setText(job.getJobType().toString());
+        setStatus();
+        lblFirstFrame.setText(Integer.toString(job.getFirstTask()));
+        lblLastFrame.setText(Integer.toString(job.getLastTask()));
+        lblProjFile.setText(job.getOrigProjFile().getName());
+        lblOutputDir.setText(job.getOutputDirFile().getAbsolutePath());
+        lblFilePrefix.setText(job.getFilePrefix());
+        lblTileRendering.setText(job.getTileStr());
+        if(job.isAutoFileTransfer()) {
+            lblAutoFileTransfer.setText("enabled");
+        } else {
+            lblAutoFileTransfer.setText("disabled");
+        }
+
+        //Tasks
+        lblReady.setText(Integer.toString(job.getReady()));
+        lblRunning.setText(Integer.toString(job.getRunning()));
+        lblDone.setText(Integer.toString(job.getDone()));
+        lblFailed.setText(Integer.toString(job.getFailed()));
+
+        //Task table
+        tblTasks.getColumnModel().getColumn(0).setMaxWidth(60);
+        tblTasks.getColumnModel().getColumn(1).setMaxWidth(40);
+    }
+    
     /*PRIVATE*/
     private void setStatus() {
         if (job.getStatus() == JobStatus.A) {
@@ -168,6 +208,8 @@ public class JobDetailsForm extends LokiForm {
         jScrollPane1 = new javax.swing.JScrollPane();
         tblTasks = new javax.swing.JTable();
         jLabel12 = new javax.swing.JLabel();
+        jButton1 = new javax.swing.JButton();
+        jLabelRefresh = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -452,6 +494,16 @@ public class JobDetailsForm extends LokiForm {
                 .addComponent(jScrollPane1))
         );
 
+        jButton1.setText("Refresh");
+        jButton1.setName("refreshBtn"); // NOI18N
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
+        jLabelRefresh.setText("jLabel15");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -461,13 +513,22 @@ public class JobDetailsForm extends LokiForm {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(pnlBottom, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(pnlTaskDetail, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED))
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(pnlDetail, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(pnlTaskTally, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(pnlTaskDetail, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(pnlTaskTally, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                        .addComponent(jButton1)
+                                        .addGap(17, 17, 17))
+                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                        .addComponent(jLabelRefresh)
+                                        .addGap(29, 29, 29)))))
                         .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -479,7 +540,11 @@ public class JobDetailsForm extends LokiForm {
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(pnlDetail, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(pnlTaskTally, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(pnlTaskTally, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jButton1)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jLabelRefresh)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(pnlTaskDetail, javax.swing.GroupLayout.PREFERRED_SIZE, 268, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -505,12 +570,22 @@ public class JobDetailsForm extends LokiForm {
     private void btnCloseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCloseActionPerformed
         dispose();
     }//GEN-LAST:event_btnCloseActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        long JobId;
+        JobId = job.getJobID();
+        jLabelRefresh.setText("refresh Job with ID:" + JobId); // TODO add your handling code here:
+       // job.getStatus()
+       RefreshJobDetailsForm();
+        
+    }//GEN-LAST:event_jButton1ActionPerformed
     private final Job job;
-    private final TasksModel tasksModel;
-    private final Task[] tasks;
+    private  TasksModel tasksModel;
+    private  Task[] tasks;
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnClose;
     private javax.swing.JComboBox cbxOutput;
+    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
@@ -527,6 +602,7 @@ public class JobDetailsForm extends LokiForm {
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
+    private javax.swing.JLabel jLabelRefresh;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;

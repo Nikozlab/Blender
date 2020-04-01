@@ -135,6 +135,7 @@ public class CLHelper implements ICommon {
         boolean exeOK = true;
 
         String blenderBinStr = cfg.getBlenderBin();
+        log.info("blenderBinStr:" +blenderBinStr);
         if (blenderBinStr == null) {
             blenderBinStr = "blender";
         }
@@ -173,7 +174,11 @@ public class CLHelper implements ICommon {
 
     public static boolean isBlenderExe(String blenderBinStr)
              {
-
+                 log.info("OS"+System.getProperty("os.name"));
+                 if (System.getProperty("os.name").startsWith("Wind")) {
+                     blenderBinStr = '"'+blenderBinStr+'"';
+                }
+                 log.info(" blender executable: " + blenderBinStr);
         String[] cl = {blenderBinStr, "-v"};
         ProcessHelper pHelper = new ProcessHelper(cl);
 

@@ -23,6 +23,7 @@ package net.whn.loki.master;
 import java.io.File;
 import java.io.IOException;
 import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileSystemView;
 import javax.swing.JOptionPane;
 import net.whn.loki.common.LokiForm;
 
@@ -93,6 +94,11 @@ public class AddJobForm extends LokiForm {
 
         cbxJobType.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Blender" }));
         cbxJobType.setToolTipText("select the job type here");
+        cbxJobType.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cbxJobTypeActionPerformed(evt);
+            }
+        });
 
         typeLabel.setText("Type:");
 
@@ -336,7 +342,10 @@ public class AddJobForm extends LokiForm {
      * @param evt
      */
     private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
-        dispose();
+         //System.out.println("cancelButtonActionPerformed evt.getActionCommand:" + evt.getActionCommand());
+         //System.out.println("cancelButtonActionPerformed evt.toString:" + evt.toString());
+         masterForm.cancelBTNStatus = true;
+         dispose();
     }//GEN-LAST:event_cancelButtonActionPerformed
 
     /**
@@ -346,6 +355,7 @@ public class AddJobForm extends LokiForm {
      */
     private void saveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveButtonActionPerformed
         boolean valid = true;
+        masterForm.cancelBTNStatus = false;
         File f;
 
         //check that the name field isn't empty
@@ -442,8 +452,10 @@ public class AddJobForm extends LokiForm {
     }//GEN-LAST:event_saveButtonActionPerformed
 
     private void FileBrowseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_FileBrowseButtonActionPerformed
-        JFileChooser fileChooser = new JFileChooser(
-                masterForm.getCfg().getProjFile());
+        // System.out.println(">>>masterForm.getCfg().getProjFile():" + masterForm.getCfg().getProjFile());
+
+        JFileChooser fileChooser = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
+                //masterForm.getCfg().getProjFile());
         fileChooser.setDialogTitle("Select a project file");
         fileChooser.addChoosableFileFilter(new BlendFilter());
         if (fileChooser.showDialog(jLabel1, "Select") == JFileChooser.APPROVE_OPTION) {
@@ -505,6 +517,10 @@ public class AddJobForm extends LokiForm {
     private void cbxAutoFileTransferStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_cbxAutoFileTransferStateChanged
         
     }//GEN-LAST:event_cbxAutoFileTransferStateChanged
+
+    private void cbxJobTypeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbxJobTypeActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_cbxJobTypeActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton FileBrowseButton;

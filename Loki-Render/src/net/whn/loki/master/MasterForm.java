@@ -20,7 +20,11 @@
  */
 package net.whn.loki.master;
 
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.util.logging.Logger;
+import javax.swing.JFrame;
 import net.whn.loki.brokersModel.BrokersModel;
 import net.whn.loki.common.ProgressUpdate;
 import net.whn.loki.common.ICommon;
@@ -47,11 +51,13 @@ import net.whn.loki.messaging.SelectedGruntMsg;
  */
 public class MasterForm extends LokiForm implements ICommon {
 
+    public boolean cancelBTNStatus;
     /**
      * default constructor
      * @param m
      */
     public MasterForm(MasterR m) {
+        cancelBTNStatus = false;
         manager = m;
         jobsModel = m.getJobsModel();
         brokersModel = m.getBrokersModel();
@@ -178,6 +184,7 @@ public class MasterForm extends LokiForm implements ICommon {
         miQuit = new javax.swing.JMenuItem();
         jobsMenu = new javax.swing.JMenu();
         miNewJob = new javax.swing.JMenuItem();
+        miEditJob = new javax.swing.JMenuItem();
         miViewJob = new javax.swing.JMenuItem();
         miRemoveJob = new javax.swing.JMenuItem();
         miResetFailures = new javax.swing.JMenuItem();
@@ -319,6 +326,15 @@ public class MasterForm extends LokiForm implements ICommon {
             }
         });
         jobsMenu.add(miNewJob);
+
+        miEditJob.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_N, java.awt.event.InputEvent.CTRL_MASK));
+        miEditJob.setText("Edit");
+        miEditJob.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                miEditJobActionPerformed(evt);
+            }
+        });
+        jobsMenu.add(miEditJob);
 
         miViewJob.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_J, java.awt.event.InputEvent.CTRL_MASK));
         miViewJob.setText("View details");
@@ -514,7 +530,7 @@ public class MasterForm extends LokiForm implements ICommon {
     private void pmiNewJobActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pmiNewJobActionPerformed
         newJob();
     }//GEN-LAST:event_pmiNewJobActionPerformed
-
+          
     private void miAboutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miAboutActionPerformed
         AboutForm aboutForm = new AboutForm(manager.getCfg().getLokiVer());
         aboutForm.setLocationRelativeTo(this);
@@ -537,6 +553,10 @@ public class MasterForm extends LokiForm implements ICommon {
         quitAllGrunts();
     }//GEN-LAST:event_pmiQuitAllGruntsActionPerformed
 
+    private void miEditJobActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miEditJobActionPerformed
+        editJob();
+    }//GEN-LAST:event_miEditJobActionPerformed
+
     private void setupColumnHeaderTooltips() {
         //TODO
     }
@@ -545,6 +565,52 @@ public class MasterForm extends LokiForm implements ICommon {
         AddJobForm newJobForm = new AddJobForm(this);
         newJobForm.setLocationRelativeTo(this);
         newJobForm.setVisible(true);
+    }
+    
+    private void editJob() {
+        int[] selectedJobs = jobsTable.getSelectedRows();
+        if (selectedJobs.length == 1 ) {
+            if (manager.areJobsRunning(selectedJobs)) {
+                    int result = JOptionPane.showConfirmDialog(this,
+                            "Selected job have running tasks.\n" +
+                            "The tasks will be aborted and the jobs will be\n" +
+                            "edited. Continue?",
+                            "Abort selected tasks and edit job?",
+                            JOptionPane.OK_OPTION, JOptionPane.WARNING_MESSAGE);
+                    if (result == 0) {
+                        replaceJob(selectedJobs);
+                    }
+                } else {
+                    replaceJob(selectedJobs);
+                }
+        }else {
+             JOptionPane.showMessageDialog(this,
+                    "Please select a single job, then select 'Edit Job'.");
+        }
+    }
+
+    private void replaceJob(int[] selectedJobs){
+            AddJobForm newJobForm = new AddJobForm(this);
+            newJobForm.setLocationRelativeTo(this);
+            newJobForm.setVisible(true);
+            newJobForm.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosing(WindowEvent e) {
+                    //System.out.println("windowClosing "+cancelBTNStatus);
+                  if (cancelBTNStatus == false){
+                            sendMsg2Manager(new RemoveJobsMsg(MsgType.REMOVE_JOBS, selectedJobs));
+                    }
+                }
+                @Override
+                public void windowClosed(WindowEvent e) {
+                     //System.out.println("windowClosed "+cancelBTNStatus);
+                    //This will only be seen on standard output.
+                    if (cancelBTNStatus == false){
+                            sendMsg2Manager(new RemoveJobsMsg(MsgType.REMOVE_JOBS, selectedJobs));
+                    }
+                }
+              });
+            
     }
 
     private void abortAllJobs() {
@@ -688,6 +754,8 @@ public class MasterForm extends LokiForm implements ICommon {
         gruntsTable.setComponentPopupMenu(pmenuGruntOptions);
         gruntsTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
     }
+    
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JToggleButton btnStart;
     private javax.swing.JMenu fileMenu;
@@ -702,6 +770,7 @@ public class MasterForm extends LokiForm implements ICommon {
     private javax.swing.JLabel lblCores;
     private javax.swing.JMenuItem miAbortJob;
     private javax.swing.JMenuItem miAbout;
+    private javax.swing.JMenuItem miEditJob;
     private javax.swing.JMenuItem miNewJob;
     private javax.swing.JMenuItem miPreferences;
     private javax.swing.JMenuItem miQuit;
