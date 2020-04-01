@@ -3,12 +3,13 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
+            <file>file:/Users/nikoz/NetBeansProjects/Loki-Render/src/net/whn/loki/master/AddJobForm.java</file>
+            <file>file:/Users/nikoz/NetBeansProjects/Loki-Render/src/net/whn/loki/master/MasterForm.java</file>
+            <file>jar:file:/Users/nikoz/NetBeansProjects/Loki-Render/lib/hamcrest/hamcrest-core-1.3.jar!/META-INF/MANIFEST.MF</file>
             <file>file:/Users/nikoz/NetBeansProjects/Loki-Render/src/net/whn/loki/common/Main.java</file>
             <file>file:/Users/nikoz/NetBeansProjects/Loki-Render/src/net/whn/loki/common/Config.java</file>
             <file>file:/Users/nikoz/NetBeansProjects/Loki-Render/src/net/whn/loki/CL/CLHelper.java</file>
-            <file>file:/Users/nikoz/NetBeansProjects/Loki-Render/src/net/whn/loki/grunt/GruntR.java</file>
-            <file>file:/Users/nikoz/NetBeansProjects/Loki-Render/src/net/whn/loki/common/PreferencesForm.java</file>
-            <file>file:/Users/nikoz/NetBeansProjects/Loki-Render/src/net/whn/loki/common/NKZJOPane.java</file>
+            <file>file:/Users/nikoz/NetBeansProjects/Loki-Render/src/net/whn/loki/master/AddingJobForm.java</file>
         </group>
     </open-files>
 </project-private>
