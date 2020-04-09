@@ -108,16 +108,27 @@ public class AnnouncerR implements Runnable {
         }
     }
 
+    
     private String detectMaster() {
 
         byte[] buf = new byte[256];
         DatagramPacket packet = new DatagramPacket(buf, buf.length);
-
         try {
-            MulticastSocket mSock = new MulticastSocket(config.getGruntMulticastPort());
-            mSock.joinGroup(config.getMulticastAddress());
-            mSock.setSoTimeout(5_000);
-            mSock.receive(packet);
+            String strIpAddress = config.getMulticastAddress().toString();
+            strIpAddress = strIpAddress.replace("/", "");
+            log.info("strIpAddress2: " +strIpAddress);
+            MulticastSocket multicastSocket = new MulticastSocket(config.getGruntMulticastPort() ); 
+            // join multicast group to receive messages
+            multicastSocket.joinGroup(InetAddress.getByName(strIpAddress)); 
+            // set 5 second timeout when waiting for new packets
+            multicastSocket.setSoTimeout( 5000 );
+            multicastSocket.receive(packet);
+/*            
+            MulticastSocket multicastSocket = new MulticastSocket(config.getGruntMulticastPort());
+            multicastSocket.joinGroup(config.getMulticastAddress());
+            multicastSocket.setSoTimeout(5_000);
+            multicastSocket.receive(packet);
+*/
         } catch (SocketTimeoutException ex) {
             return null;
         } catch (IOException ex) {
