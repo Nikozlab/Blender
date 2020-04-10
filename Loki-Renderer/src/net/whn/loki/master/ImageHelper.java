@@ -15,6 +15,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ImageHelper {
@@ -44,9 +45,9 @@ public class ImageHelper {
 
         for (int i = 0; i < tilesPerFrame; i++) {
             File file = new File(tileFolder, i + task.getGeneratedOutputFileExtension());
-            inputFiles.add(file);
+            boolean add = inputFiles.add(file);
             if (!file.isFile()) {
-                log.warning("expected tile file doesn't exist: " + file.getAbsolutePath());
+                log.log(Level.WARNING, "expected tile file doesn''t exist: {0}", file.getAbsolutePath());
                 inputFiles.clear();
                 return inputFiles;
             }
@@ -145,12 +146,13 @@ public class ImageHelper {
 
     private static void saveBufferedImageToTiff(BufferedImage finalImg, File outputFile) throws IOException {
         TIFFEncodeParam params = new TIFFEncodeParam();
-        OutputStream outputStream = new FileOutputStream(outputFile); // task.getGeneratedOutputFileExtensionWithoutDot()
-        ImageEncoder encoder = ImageCodec.createImageEncoder("tiff", outputStream, params);
-
-        params.setExtraImages(Arrays.asList(finalImg).iterator());
-        encoder.encode(finalImg);
-        outputStream.close();
+        try (OutputStream outputStream = new FileOutputStream(outputFile) // task.getGeneratedOutputFileExtensionWithoutDot()
+        ) {
+            ImageEncoder encoder = ImageCodec.createImageEncoder("tiff", outputStream, params);
+            
+            params.setExtraImages(Arrays.asList(finalImg).iterator());
+            encoder.encode(finalImg);
+        }
     }
 
     /**
@@ -187,12 +189,12 @@ public class ImageHelper {
     private static List<BufferedImage> convertTiffToBufferedImages(List<File> images) throws IOException {
         List<BufferedImage> bufferedImages = new ArrayList<>(images.size());
         for (File image : images) {
-            SeekableStream seekableStream = new FileSeekableStream(image);
-            ImageDecoder decoder = ImageCodec.createImageDecoder("tiff", seekableStream, null);
-            PlanarImage planarImage = new NullOpImage(decoder.decodeAsRenderedImage(0), null, null, OpImage.OP_IO_BOUND);
-            BufferedImage bufferedImage = planarImage.getAsBufferedImage();
-            bufferedImages.add(bufferedImage);
-            seekableStream.close();
+            try (SeekableStream seekableStream = new FileSeekableStream(image)) {
+                ImageDecoder decoder = ImageCodec.createImageDecoder("tiff", seekableStream, null);
+                PlanarImage planarImage = new NullOpImage(decoder.decodeAsRenderedImage(0), null, null, OpImage.OP_IO_BOUND);
+                BufferedImage bufferedImage = planarImage.getAsBufferedImage();
+                bufferedImages.add(bufferedImage);
+            }
         }
         return bufferedImages;
     }

@@ -1,5 +1,10 @@
 New Features:
 
+Version R0.8.0.001:
+if not on IPV6 network need this Java Flag to find Master server correctly:
+java -Djava.net.preferIPv4Stack=true -jar Loki-Renderer.jar
+ 
+features from https://github.com/Michael1001/loki-render :
 Version R0.7.3.014:
 Added multi-file transfer functional, to send all rendered files from grunt to master;
 Added functional to accept and work with zip archive of blend files;

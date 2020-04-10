@@ -33,24 +33,10 @@ import java.text.DecimalFormat;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 import java.util.zip.Deflater;
-import java.util.zip.DeflaterOutputStream;
-import java.util.zip.InflaterInputStream;
-
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.BufferedWriter;
 import java.io.BufferedReader;
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import java.util.logging.Level;
-
-
-
-
-
-
-
-
-
 
 
 /**
@@ -58,7 +44,6 @@ import java.util.logging.Level;
  * @author daniel, Michael, NiKoZ
  */
 public class Config implements Serializable, ICommon {
-
 
     private static final Logger log = Logger.getLogger(Config.class.toString());
     //common
@@ -105,6 +90,7 @@ public class Config implements Serializable, ICommon {
     //NiKoZ WaS HeRe
     /**
      * Called by main if no previous Config exists
+     * @param lokiBaseFolder
      */
     public Config(File lokiBaseFolder) {
 
@@ -280,28 +266,29 @@ public class Config implements Serializable, ICommon {
     
     /**
      * If a cfg file exists, then it reads the cfg object from it
+     * @param lokiBaseFolder
      * @return cfg object if file is present, new cfg object otherwise
      */
     public synchronized static Config readConfigFile(File lokiBaseFolder) {
 
         lokiConfigFile = new File(lokiBaseFolder, "loki.cfg");
-        Config c = null;
+        Config c; 
         long time = System.currentTimeMillis();
         if (lokiConfigFile.canRead()) {
-            log.info("lokiConfigFile.getPath" + lokiConfigFile.getPath());
-            log.info("lokiConfigFile.getAbsolutePath" + lokiConfigFile.getAbsolutePath());
+            //log.info("lokiConfigFile.getPath" + lokiConfigFile.getPath());
+            //log.info("lokiConfigFile.getAbsolutePath" + lokiConfigFile.getAbsolutePath());
             try {
                 String json = readFirstLineFromFileWithFinallyBlock(lokiConfigFile.getPath());
-                log.info("json: " + json);
+                //log.info("json: " + json);
                 Gson gson = new Gson();
                 c = (Config) gson.fromJson(json, Config.class);
-                time = System.currentTimeMillis() - time;
-                log.finest("config file read in (ms): " + Long.toString(time));
+                //time = System.currentTimeMillis() - time;
+                //log.finest("config file read in (ms): " + Long.toString(time));
                 return c;
             } catch (IOException ex) {
                 Logger.getLogger(Config.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (Exception ex) {
-                log.warning("failed to read loki.cfg: " + ex.getMessage());
+            } catch (JsonSyntaxException ex) {
+                log.log(Level.WARNING, "failed to read loki.cfg: {0}", ex.getMessage());
             }
             /*try (
                 FileInputStream fileInputStream = new FileInputStream(lokiConfigFile);
@@ -329,16 +316,20 @@ public class Config implements Serializable, ICommon {
 
         lokiConfigFile = new File(Main.lokiBaseFolder, "loki.cfg");
         
-        FileWriter file = new FileWriter(lokiConfigFile);
-        Gson gson = new Gson();
-        String json = gson.toJson(config); 
-        
-        long time = System.currentTimeMillis();
-        file.write(json);
-        file.flush();
-        file.close();
-        time = System.currentTimeMillis() - time;
-        log.fine("config file written in (ms): " + Long.toString(time));
+        long time;
+        try (FileWriter file = new FileWriter(lokiConfigFile)) {
+            Gson gson = new Gson();
+            String json = gson.toJson(config);
+            time = System.currentTimeMillis();
+            file.write(json);
+            file.flush();
+        } catch (IOException ex) {
+            Logger.getLogger(Config.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (JsonSyntaxException ex) {
+            log.log(Level.WARNING, "failed to read loki.cfg: {0}", ex.getMessage());
+        }
+        //time = System.currentTimeMillis() - time;
+        //log.fine("config file written in (ms): " + Long.toString(time));
         /*
         try (FileOutputStream file = new FileOutputStream(lokiConfigFile);
              BufferedOutputStream buffer = new BufferedOutputStream(file);

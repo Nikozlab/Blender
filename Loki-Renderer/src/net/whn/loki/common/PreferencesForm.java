@@ -149,18 +149,22 @@ public class PreferencesForm extends LokiForm {
     private void buildMainLayout() {
         GroupLayout mainLayout = new GroupLayout(getContentPane());
         getContentPane().setLayout(mainLayout);
+        buildControlsInfoCaption();
+        buildSaveButton();
+        buildCancelButton();
+        buildTabbedPane();
         mainLayout.setHorizontalGroup(
                 mainLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
                         .addGroup(mainLayout.createSequentialGroup()
                                 .addContainerGap()
-                                .addComponent(buildControlsInfoCaption())
+                                .addComponent(controlsInfoCaption)
                                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(buildCancelButton(), GroupLayout.PREFERRED_SIZE, 85, GroupLayout.PREFERRED_SIZE)
+                                .addComponent(cancelButton, GroupLayout.PREFERRED_SIZE, 85, GroupLayout.PREFERRED_SIZE)
                                 .addGap(18, 18, 18)
-                                .addComponent(buildSaveButton())
+                                .addComponent(saveButton)
                                 .addContainerGap()
                         ).addGroup(mainLayout.createSequentialGroup()
-                        .addComponent(buildTabbedPane(), GroupLayout.PREFERRED_SIZE, 620, GroupLayout.PREFERRED_SIZE)
+                        .addComponent(tabbedPane, GroupLayout.PREFERRED_SIZE, 620, GroupLayout.PREFERRED_SIZE)
                         .addGap(0, 0, Short.MAX_VALUE)
                 )
         );
@@ -181,31 +185,31 @@ public class PreferencesForm extends LokiForm {
         );
     }
 
-    private JTabbedPane buildTabbedPane() {
+    private void buildTabbedPane() {
         tabbedPane = new JTabbedPane();
         tabbedPane.addTab("general", buildGeneralGroupLayout());
         tabbedPane.addTab("local grunt", buildLocalGruntGroupLayout());
         tabbedPane.addTab("local master", buildLocalMasterGroupLayout());
-        return tabbedPane;
+        //return tabbedPane;
     }
 
-    private JButton buildSaveButton() {
+    private void buildSaveButton() {
         saveButton = new JButton("Save");
         saveButton.addActionListener((event) -> save());
-        return saveButton;
+        //return saveButton;
     }
 
-    private JButton buildCancelButton() {
+    private void buildCancelButton() {
         cancelButton = new JButton("Cancel");
         cancelButton.addActionListener((event) -> setVisible(false));
-        return cancelButton;
+        //return cancelButton;
     }
 
-    private JLabel buildControlsInfoCaption() {
+    private void buildControlsInfoCaption() {
         controlsInfoCaption = new JLabel();
         controlsInfoCaption.setFont(new Font("Ubuntu", 1, 15));
         controlsInfoCaption.setText("Restart Loki after 'Save' for all settings to take effect.");
-        return controlsInfoCaption;
+       // return controlsInfoCaption;
     }
 
     private JPanel buildLocalMasterGroupLayout() {
@@ -559,7 +563,7 @@ public class PreferencesForm extends LokiForm {
     private void buildFileHandlingGroupLayout() {
 
         buildFileHandlingButtonGroup();
-
+        buildFileHelpButton();
         GroupLayout fileHandlingGroupLayout = new GroupLayout(buildFileHandlingPanel());
         fileHandlingPanel.setLayout(fileHandlingGroupLayout);
         fileHandlingGroupLayout.setHorizontalGroup(
@@ -570,7 +574,7 @@ public class PreferencesForm extends LokiForm {
                                         .addGroup(fileHandlingGroupLayout.createSequentialGroup()
                                                 .addComponent(autoFileRadioButton)
                                                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                                .addComponent(buildFileHelpButton(), GroupLayout.PREFERRED_SIZE, 68, GroupLayout.PREFERRED_SIZE))
+                                                .addComponent(fileHelpButton, GroupLayout.PREFERRED_SIZE, 68, GroupLayout.PREFERRED_SIZE))
                                         .addGroup(fileHandlingGroupLayout.createSequentialGroup()
                                                 .addComponent(manualFileRadioButton)
                                                 .addGap(0, 0, Short.MAX_VALUE)))

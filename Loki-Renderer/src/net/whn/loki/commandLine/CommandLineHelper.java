@@ -187,7 +187,7 @@ public class CommandLineHelper implements ICommon {
         List<String> blenderCommandLine = new ArrayList<>();
         blenderCommandLine.add(blenderBin);
         blenderCommandLine.add("-noaudio");
-        blenderCommandLine.add("-nojoystick");
+        //blenderCommandLine.add("-nojoystick");
         blenderCommandLine.add("-b");
         blenderCommandLine.add(blendFile.getCanonicalPath());
 

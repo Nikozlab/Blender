@@ -102,6 +102,8 @@ public class AddJobForm extends LokiForm {
         outputFilePrefixTextField.setText(config.getFilePrefix());
         comboboxTileMultiplier.setSelectedIndex(2);
         autoFileTransferComboBox.setSelected(config.getAutoFileHandling());
+        firstFrameTextField.presetValue(1);
+        lastFrameTextField.presetValue(1);
         updateTileMultiplierResultLabel();
     }
 
@@ -114,6 +116,7 @@ public class AddJobForm extends LokiForm {
         outputFolderBrowseButton = new JButton();
         outputFilePrefixTextField = new JTextField();
         steppedRenderingTextField = new JTextField("10");
+        
         autoFileTransferComboBox = new JCheckBox();
 
         cancelButton = new JButton();
@@ -1008,6 +1011,10 @@ public class AddJobForm extends LokiForm {
 
         private Integer getValue() {
             return value;
+        }
+        
+        public void presetValue(int intVal) {
+            value = intVal;
         }
     }
 

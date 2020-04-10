@@ -116,7 +116,7 @@ public class AnnouncerR implements Runnable {
         try {
             String strIpAddress = config.getMulticastAddress().toString();
             strIpAddress = strIpAddress.replace("/", "");
-            log.info("strIpAddress2: " +strIpAddress);
+            //log.info("strIpAddress: " +strIpAddress);
             MulticastSocket multicastSocket = new MulticastSocket(config.getGruntMulticastPort() ); 
             // join multicast group to receive messages
             multicastSocket.joinGroup(InetAddress.getByName(strIpAddress)); 
