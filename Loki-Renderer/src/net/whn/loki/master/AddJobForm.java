@@ -102,8 +102,10 @@ public class AddJobForm extends LokiForm {
         outputFilePrefixTextField.setText(config.getFilePrefix());
         comboboxTileMultiplier.setSelectedIndex(2);
         autoFileTransferComboBox.setSelected(config.getAutoFileHandling());
-        firstFrameTextField.presetValue(1);
-        lastFrameTextField.presetValue(1);
+        
+        firstFrameTextField.setText("1");
+        lastFrameTextField.setText("1");
+        
         updateTileMultiplierResultLabel();
     }
 
@@ -116,7 +118,6 @@ public class AddJobForm extends LokiForm {
         outputFolderBrowseButton = new JButton();
         outputFilePrefixTextField = new JTextField();
         steppedRenderingTextField = new JTextField("10");
-        
         autoFileTransferComboBox = new JCheckBox();
 
         cancelButton = new JButton();
@@ -197,6 +198,7 @@ public class AddJobForm extends LokiForm {
         tileMultiplierResultLabel.setToolTipText("the total number of tiles parts");
         tileMultiplierResultLabel.setEnabled(false); // by default "Tile rendering" is not checked
 
+        
         GroupLayout pnlTileRenderingLayout = new GroupLayout(tileRenderingPanel);
         tileRenderingPanel.setLayout(pnlTileRenderingLayout);
         pnlTileRenderingLayout.setHorizontalGroup(
